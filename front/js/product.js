@@ -1,10 +1,11 @@
+
+
 const queryString = window.location.search;
 
 const urlParams = new URLSearchParams(queryString);
 
 const productId = urlParams.get('id')
 
-console.log(productId);
 
 fetch(`http://localhost:3000/api/products/${productId}`)
     .then(data => {
@@ -14,7 +15,10 @@ fetch(`http://localhost:3000/api/products/${productId}`)
         insertProduct(product);
     });
 
-
+/**
+ * 
+ * @param {*} product 
+ */
 function insertProduct(product) {
     insertProductImage(product);
     insertProductTitlePrice(product);
@@ -25,7 +29,6 @@ function insertProduct(product) {
 //TitlePrice
 function insertProductTitlePrice(product) {
     const productTitlePrice = document.getElementById('content-titlePrice');
-    console.log(productTitlePrice);
 
     productTitlePrice.innerHTML = `
         <h1 id="title">${product.name}</h1>
@@ -37,7 +40,6 @@ function insertProductTitlePrice(product) {
 //Image
 function insertProductImage(product) {
     const productImage = document.getElementById('images');
-    console.log(productImage);
 
 
     productImage.innerHTML = `
@@ -47,8 +49,7 @@ function insertProductImage(product) {
 
 //Description
 function insertProductDescription(product) {
-    const productDescription = document.getElementById('content-description')
-    console.log(productDescription);
+    const productDescription = document.getElementById('content-description');
 
     productDescription.innerHTML = `
         <p id="description">${product.description}</p>
@@ -57,16 +58,46 @@ function insertProductDescription(product) {
 }
 
 //Colours
+/**
+ * 
+ * @param {*} product 
+ */
 function insertProductColors(product) {
     const insertColors = document.getElementById('colors');
 
     for (let color of product.colors) {
-        console.log(color);
-
-        // const color = product.colors[i];
 
         insertColors.innerHTML += `
-            <option>${product.colors}</option>
+            <option value="${color}">${color}</option>
         `;
     }
 }
+
+
+//Add to cart
+
+const addToCart = document.getElementById('addToCart');
+
+
+addToCart.addEventListener('click', ($event) => {
+    const quantity = parseInt(document.getElementById('quantity').value);
+    const color = document.getElementById('colors').value;
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const found = cart.find(cartItem => cartItem.color === color && cartItem.id === productId);
+
+    if (found) {
+        found.quantity += quantity
+    } else {
+        cart.push({
+            id: productId,
+            quantity,
+            color
+        })
+    }
+
+    window.localStorage.setItem('cart', JSON.stringify(cart));
+
+    console.log(cart);
+
+})
+
