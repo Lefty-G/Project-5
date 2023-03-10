@@ -84,7 +84,7 @@ addToCart.addEventListener('click', ($event) => {
     const color = document.getElementById('colors').value;
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const found = cart.find(cartItem => cartItem.color === color && cartItem.id === productId);
-
+    
     if (found) {
         found.quantity += quantity
     } else {
@@ -95,7 +95,7 @@ addToCart.addEventListener('click', ($event) => {
         })
     }
 
-    window.localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem('cart', JSON.stringify(cart));
 
     console.log(cart);
 
