@@ -5,33 +5,30 @@ fetch('http://localhost:3000/api/products')
     return data.json();
   })
   .then(products => {
+    productCache = products
     insertProducts(products);
   });
 
-let cart = {};
-if (localStorage.getItem('cart')) {
-  cart = JSON.parse(localStorage.getItem('cart'));
-}
+let cart = getLatestCart() || [];
+
+
+let productCache;
+const totalQuantityElement = document.getElementById('totalQuantity');
+const totalPriceElement = document.getElementById('totalPrice');
 
 
 // Insert items into cart from local storage
 function insertProducts(products) {
   const productHolder = document.getElementById('cart__items');
-  const totalQuantityElement = document.getElementById('totalQuantity');
-  let totalQuantity = 0;
-  const totalPriceElement = document.getElementById('totalPrice');
-  let totalPrice = 0;
 
   for (let cartItem of cart) {
 
     const product = products.find(product => product._id === cartItem.id);
 
     let elementContainer = document.createElement('article');
-
     elementContainer.dataset.id = cartItem.id
     elementContainer.dataset.color = cartItem.color
     elementContainer.classList.add('cart__item')
-
     elementContainer.innerHTML = `
             <div class="cart__item__img">
               <img src="${product.imageUrl}" alt="${product.altTxt}">
@@ -55,48 +52,223 @@ function insertProducts(products) {
             `;
 
     productHolder.appendChild(elementContainer)
-
-    totalQuantity += cartItem.quantity;
-    totalQuantityElement.innerText = totalQuantity;
-
-    totalPrice += product.price * cartItem.quantity;
-    totalPriceElement.innerText = totalPrice;
+    updateTotals(cartItem.quantity, product.price);
 
     const deleteButton = elementContainer.querySelector('.deleteItem');
-    const quantityButton = parseInt(elementContainer.querySelector('.itemQuantity').value);
-
+    const quantityButton = elementContainer.querySelector('.itemQuantity');
 
     deleteButton.addEventListener('click', deleteItem);
     quantityButton.addEventListener('change', changeQuantity);
+
+
   }
+}
+
+
+function updateTotals(quantity, price) {
+  let totalQuantity = parseInt(totalQuantityElement.innerText) || 0
+  let totalPrice = parseInt(totalPriceElement.innerText) || 0
+  totalQuantity += quantity;
+  totalQuantityElement.innerText = totalQuantity;
+  totalPrice += price * quantity;
+  totalPriceElement.innerText = totalPrice;
+}
+
+function productIdentifier(articleElement) {
+  const color = articleElement.dataset.color;
+  const id = articleElement.dataset.id;
+  return { id, color };
+}
+
+function getLatestCart() {
+  return JSON.parse(localStorage.getItem('cart'));
+}
+
 
 
 // Remove item 
-  function deleteItem($event) {
-    const clickedElement = $event.target;
-    const articleElement = clickedElement.closest('.cart__item');
-    const color = articleElement.dataset.color;
-    const id = articleElement.dataset.id;
-    const found = cart.filter(cartItem => cartItem.id != id || cartItem.color != color);
-    localStorage.setItem('cart', JSON.stringify(found));
-    articleElement.remove();
+function deleteItem($event) {
+  const clickedElement = $event.target;
+  const articleElement = clickedElement.closest('.cart__item');
+  const { id, color } = productIdentifier(articleElement);
+  const latestCart = getLatestCart();
+  const newCart = latestCart.filter(cartItem => cartItem.id !== id || cartItem.color !== color);
+  const cartItemRemove = latestCart.find(cartItem => cartItem.id === id && cartItem.color === color);
+  const findProduct = productCache.find(product => product._id === cartItemRemove.id)
 
+  console.log(findProduct)
+  console.log(cartItemRemove)
+  console.log(newCart)
+
+  localStorage.setItem('cart', JSON.stringify(newCart));
+  articleElement.remove();
+
+
+  updateTotals(-cartItemRemove.quantity, findProduct.price);
+
+
+}
+
+// Change the quanity on the cart page
+function changeQuantity($event) {
+  const changedElement = $event.target;
+  const articleElement = changedElement.closest('.cart__item');
+  const { id, color } = productIdentifier(articleElement);
+  const latestCart = getLatestCart();
+  const cartItemToChange = latestCart.find(cartItem => cartItem.id === id || cartItem.color === color);
+  const findProduct = productCache.find(product => product._id === cartItemToChange.id)
+  const cartItemQuantity = parseInt(cartItemToChange.quantity) || 0;
+  const newElement = parseInt(changedElement.value) || 0;
+
+  updateTotals(newElement - cartItemQuantity, findProduct.price);
+
+  cartItemToChange.quantity = parseInt(changedElement.value);
+  console.log(cartItemToChange)
+
+  localStorage.setItem('cart', JSON.stringify(latestCart));
+  console.log(latestCart)
+
+}
+
+
+// Validate email
+
+const emailInput = document.getElementById('email');
+emailInput.addEventListener('change', validateEmail);
+
+function validateEmail($event) {
+  const emailInput = $event.target.value;
+  let validRegex = /\S+@\S+\.\S+/g;
+  let result = validRegex.test(emailInput);
+  let emailErrorMessage = 'Please ensure email is in the correct format'
+
+  if (result) {
+
+  } else {
+    console.log('invalid email');
+    let emailError = document.getElementById('emailErrorMsg');
+    emailError.innerHTML = `
+    <p id="emailErrorMsg">${emailErrorMessage}</p>
+    `
   }
+}
 
-// Change quantity
-  function changeQuantity($event) {
-    const clickedElement = $event.target.value;
-    const articleElement = clickedElement('.cart__item');
-    
-    
-    console.log(quantity)
-    // const change = 
+//Validate text box (Names & city)
+
+const firstNameInput = document.getElementById('firstName');
+firstNameInput.addEventListener('change', validateFirstName);
+
+const lastNameInput = document.getElementById('lastName');
+lastNameInput.addEventListener('change', validateLastName);
+
+const cityInput = document.getElementById('city');
+cityInput.addEventListener('change', validateCity);
+
+let validTextRegex = /^([^0-9]*)$/g;
+let textErrorMessage = 'Please enter valid text. Do not include numbers'
+
+function validateFirstName($event) {
+  const firstNameInput = $event.target.value;
+  let result = validTextRegex.test(firstNameInput);
+
+  if (result) {
+
+  } else {
+    let firstNameError = document.getElementById('firstNameErrorMsg');
+    firstNameError.innerHTML = `
+    <p id="firstNameErrorMsg">${textErrorMessage}</p>
+    `
   }
+}
+
+function validateLastName($event) {
+  const lastNameInput = $event.target.value;
+  let result = validTextRegex.test(lastNameInput);
+
+  if (result) {
+
+  } else {
+    let lastNameError = document.getElementById('lastNameErrorMsg');
+    lastNameError.innerHTML = `
+    <p id="lastNameErrorMsg">${textErrorMessage}</p>
+    `
+  }
+}
+
+function validateCity($event) {
+  const cityInput = $event.target.value;
+  let result = validTextRegex.test(cityInput);
+
+  if (result) {
+
+  } else {
+    let cityError = document.getElementById('cityErrorMsg');
+    cityError.innerHTML = `
+    <p id="cityErrorMsg">${textErrorMessage}</p>
+    `
+  }
+}
 
 
-  // const removedQuantity = parseInt(articleContainer.querySelector('.itemQuantity').value);
-  // let changeArticleEvent = $event.target.closest() inside function
-  // changeEvent for quantity
-  // closet to find element that has the data fields, that element has an ID $event.target.closest('article')
+// Validate Address
+
+const addressInput = document.getElementById('address');
+addressInput.addEventListener('change', validateAddress);
+
+function validateAddress($event) {
+  const addressInput = $event.target.value;
+  let validRegex = /[^<>%$!"£&*]/g;
+  let result = validRegex.test(addressInput);
+  let addressErrorMessage = 'Your address can not include special characters'
+
+  if (result) {
+
+  } else {
+    let addressError = document.getElementById('addressErrorMsg');
+    addressError.innerHTML = `
+    <p id="addressErrorMsg">${addressErrorMessage}</p>
+    `
+  }
+}
+
+const submitButton = document.getElementById('order');
+submitButton.addEventListener('click', submitOrder);
+
+function submitOrder($event) {
+  // const submit = $event.target.value;
+  // const {id} = productIdentifier(submit); -- Error with this stating colour is undefined
+  // const latestCart = getLatestCart();
+  // const productId = latestCart.find(cartItem => cartItem.id === id);
+  // const findProduct = productCache.find(product => product._id === productId.id)
+
+  
+  
+  fetch('http://localhost:3000/api/products/order', {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/JSON'
+    },
+    body: JSON.stringify(
+      {
+        "contact": {
+          "firstName": "Gerry",
+          "lastName": "Wright",
+          "address": "123 assdasd",
+          "city": "asdawe",
+          "email": "asdasdasd"
+        },
+        "products": [
+          "12312312412343214"
+        ]
+      }
+    )
+  })
+
+
+    .then(res => res.json())
+    .then(data => console.log(data))
+  // window.location.assign(
+  //   ""
+  // );
 }
 
