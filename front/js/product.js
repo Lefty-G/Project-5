@@ -99,5 +99,6 @@ addToCart.addEventListener('click', ($event) => {
 
     console.log(cart);
 
+    alert('Item added to cart');
 })
 

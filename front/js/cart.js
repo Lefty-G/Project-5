@@ -138,15 +138,14 @@ emailInput.addEventListener('change', validateEmail);
 
 function validateEmail($event) {
   const emailInput = $event.target.value;
-  let validRegex = /\S+@\S+\.\S+/g;
+  let validRegex = /\S+@\S+\.\S+/;
   let result = validRegex.test(emailInput);
   let emailErrorMessage = 'Please ensure email is in the correct format'
+  let emailError = document.getElementById('emailErrorMsg');
+  emailError.innerHTML = "";
 
-  if (result) {
-
-  } else {
-    console.log('invalid email');
-    let emailError = document.getElementById('emailErrorMsg');
+  if (!result) {
+    
     emailError.innerHTML = `
     <p id="emailErrorMsg">${emailErrorMessage}</p>
     `
@@ -164,49 +163,52 @@ lastNameInput.addEventListener('change', validateLastName);
 const cityInput = document.getElementById('city');
 cityInput.addEventListener('change', validateCity);
 
-let validTextRegex = /^([^0-9]*)$/g;
+let validTextRegex = /^[a-zA-Z]+$/;
 let textErrorMessage = 'Please enter valid text. Do not include numbers'
 
 function validateFirstName($event) {
   const firstNameInput = $event.target.value;
   let result = validTextRegex.test(firstNameInput);
+  let firstNameError = document.getElementById('firstNameErrorMsg');
+  firstNameError.innerHTML = "";
 
-  if (result) {
+  if (!result) {
 
-  } else {
-    let firstNameError = document.getElementById('firstNameErrorMsg');
     firstNameError.innerHTML = `
     <p id="firstNameErrorMsg">${textErrorMessage}</p>
     `
   }
+
 }
 
 function validateLastName($event) {
   const lastNameInput = $event.target.value;
   let result = validTextRegex.test(lastNameInput);
+  let lastNameError = document.getElementById('lastNameErrorMsg');
+  lastNameError.innerHTML = "";
 
-  if (result) {
+  if (!result) {
 
-  } else {
-    let lastNameError = document.getElementById('lastNameErrorMsg');
     lastNameError.innerHTML = `
     <p id="lastNameErrorMsg">${textErrorMessage}</p>
     `
   }
 }
 
+
 function validateCity($event) {
   const cityInput = $event.target.value;
   let result = validTextRegex.test(cityInput);
+  let cityError = document.getElementById('cityErrorMsg');
+  cityError.innerHTML = "";
+  
+  if (!result) {
 
-  if (result) {
-
-  } else {
-    let cityError = document.getElementById('cityErrorMsg');
     cityError.innerHTML = `
     <p id="cityErrorMsg">${textErrorMessage}</p>
     `
   }
+
 }
 
 
@@ -217,32 +219,61 @@ addressInput.addEventListener('change', validateAddress);
 
 function validateAddress($event) {
   const addressInput = $event.target.value;
-  let validRegex = /[^<>%$!"£&*]/g;
+  let validRegex = /[^<>%$!"£&*]/;
   let result = validRegex.test(addressInput);
   let addressErrorMessage = 'Your address can not include special characters'
+  let addressError = document.getElementById('addressErrorMsg');
+  addressError.innerHTML = "";
 
-  if (result) {
+  if (!result) {
 
-  } else {
-    let addressError = document.getElementById('addressErrorMsg');
     addressError.innerHTML = `
     <p id="addressErrorMsg">${addressErrorMessage}</p>
     `
   }
+
+}
+
+function validateIt($event) {
+  let theValue;
+  if (validateAddress($event)) { theValue = 
+    $event.target.value; }
+  else { theValue = document.getElementById('address').value }
+    
+  if (validateCity($event)) {theValue = 
+    $event.target.value; }
+  else { theValue = document.getElementById('city').value }
+
+  if (validateFirstName($event)) {theValue = 
+    $event.target.value; }
+  else { theValue = document.getElementById('firstName').value }
+
+  if (validateLastName($event)) {theValue = 
+    $event.target.value; }
+  else { theValue = document.getElementById('lastName').value }
+
+  if (validateEmail($event)) {theValue = 
+    $event.target.value; }
+  else { theValue = document.getElementById('email').value }
+
 }
 
 const submitButton = document.getElementById('order');
 submitButton.addEventListener('click', submitOrder);
 
 function submitOrder($event) {
-  // const submit = $event.target.value;
-  // const {id} = productIdentifier(submit); -- Error with this stating colour is undefined
-  // const latestCart = getLatestCart();
-  // const productId = latestCart.find(cartItem => cartItem.id === id);
-  // const findProduct = productCache.find(product => product._id === productId.id)
+  $event.preventDefault()
+  const latestCart = getLatestCart();
+  const products = latestCart.map(cartItem => cartItem.id);
 
+  if(!latestCart?.length){
+
+    alert('Cart is empty')
+
+  }
   
-  
+ if (validateCity && validateAddress && validateEmail && validateFirstName && validateLastName && validateIt) {
+
   fetch('http://localhost:3000/api/products/order', {
     method: 'POST',
     headers: {
@@ -252,23 +283,23 @@ function submitOrder($event) {
       {
         "contact": {
           "firstName": "Gerry",
-          "lastName": "Wright",
-          "address": "123 assdasd",
+          "lastName": "wrigh",
+          "address": "1123213a",
           "city": "asdawe",
           "email": "asdasdasd"
         },
-        "products": [
-          "12312312412343214"
-        ]
+        products 
       }
     )
   })
 
-
-    .then(res => res.json())
-    .then(data => console.log(data))
-  // window.location.assign(
-  //   ""
-  // );
+  .then(res => res.json())
+  .then(data => console.log(data))
+// window.location.assign(
+//   "../css/confirmation.css"
+// );
+ }
 }
 
+
+// TODO add a final validation for the contact info when pressing the "order" button. 

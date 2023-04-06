@@ -1,4 +1,3 @@
-console.log("I'm ready to get going")
 
 // Get things from the backend
 
