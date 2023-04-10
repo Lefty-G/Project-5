@@ -1,6 +1,6 @@
 
 
-const queryString = window.location.search;
+const queryString = location.search;
 
 const urlParams = new URLSearchParams(queryString);
 
@@ -16,8 +16,9 @@ fetch(`http://localhost:3000/api/products/${productId}`)
     });
 
 /**
+ * Overall function containing the required items need for the product information 
  * 
- * @param {*} product 
+ * @param {Any} product Product descpription. Includes: Image, Title, Price, Description & Colours.
  */
 function insertProduct(product) {
     insertProductImage(product);
@@ -26,7 +27,11 @@ function insertProduct(product) {
     insertProductColors(product);
 }
 
-//TitlePrice
+/**
+ * Inserts products Title and Price into the pages HTML
+ * 
+ * @param {any} product Product descpription. Includes: Image, Title, Price, Description & Colours.
+ */
 function insertProductTitlePrice(product) {
     const productTitlePrice = document.getElementById('content-titlePrice');
 
@@ -37,7 +42,11 @@ function insertProductTitlePrice(product) {
 
 }
 
-//Image
+/**
+ * Inserts products Image into the pages HTML
+ * 
+ * @param {any} product Product descpription. Includes: Image, Title, Price, Description & Colours.
+ */
 function insertProductImage(product) {
     const productImage = document.getElementById('images');
 
@@ -47,7 +56,11 @@ function insertProductImage(product) {
     `;
 }
 
-//Description
+/**
+ * Inserts products Description into the pages HTML
+ * 
+ * @param {any} product Product descpription. Includes: Image, Title, Price, Description & Colours.
+ */
 function insertProductDescription(product) {
     const productDescription = document.getElementById('content-description');
 
@@ -57,10 +70,10 @@ function insertProductDescription(product) {
 
 }
 
-//Colours
 /**
+ * Inserts products Colours into the pages HTML
  * 
- * @param {*} product 
+ * @param {any} product Product descpription. Includes: Image, Title, Price, Description & Colours.
  */
 function insertProductColors(product) {
     const insertColors = document.getElementById('colors');
@@ -73,12 +86,11 @@ function insertProductColors(product) {
     }
 }
 
-
-//Add to cart
-
 const addToCart = document.getElementById('addToCart');
 
-
+/**
+ * Add to cart event listener. 
+ */
 addToCart.addEventListener('click', ($event) => {
     const quantity = parseInt(document.getElementById('quantity').value);
     const color = document.getElementById('colors').value;

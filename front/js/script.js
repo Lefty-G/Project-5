@@ -1,7 +1,5 @@
 
 // Get things from the backend
-
-
 fetch('http://localhost:3000/api/products')
     .then(data => {
         return data.json();
@@ -10,7 +8,11 @@ fetch('http://localhost:3000/api/products')
         insertProducts(products);
     });
 
-
+/**
+ * Inserts the product information into the HTML. 
+ * 
+ * @param {object[]} products Product descpription. Includes: Image, Title, Price, Description & Colours.
+ */
 function insertProducts(products) {
     const productHolder = document.getElementById('products');
 
